@@ -1,0 +1,29 @@
+{
+  "name": "stormcelltech-fileuploader",
+  "version": "1.0.0",
+  "description": "A robust, dependency-free vanilla JavaScript file upload component with state-to-view architecture and a dataset API.",
+  "main": "src/FileUploader.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "keywords": [
+    "file-uploader",
+    "vanilla-js",
+    "stormcell",
+    "upload",
+    "media-library",
+    "dependency-free",
+    "laravel-compatible"
+  ],
+  "author": "stormcelltech",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stormcelltech/FileUploader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/stormcelltech/FileUploader/issues"
+  },
+  "homepage": "https://github.com/stormcelltech/FileUploader#readme"
+}

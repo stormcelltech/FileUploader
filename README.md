@@ -1,54 +1,43 @@
 # Vanilla File Uploader
 
-A lightweight, dependency-free JavaScript file uploader with a modern, predictable state architecture inspired by React. It provides an easy-to-use HTML dataset API while remaining framework agnostic.
+A lightweight, dependency-free JavaScript file uploader with a modern, React-inspired architecture. It provides a clean HTML data attribute API, built-in media library, previews, drag & drop uploads, and Laravel-friendly CSRF support.
 
 ## Features
 
 - 🚀 Zero dependencies
-- 📦 Simple HTML data attribute configuration
-- 🖼️ Single and multiple file uploads
-- 📁 Built-in media library with search and pagination
-- 👀 Optional image/file preview
-- 🔒 Automatic CSRF token detection (Laravel compatible)
-- ⚡ Duplicate input name detection during development
+- 📦 Automatic initialization
+- 🖼️ Single & multiple file uploads
+- 📁 Built-in media library
+- 🔍 Media search with pagination
+- 👀 Optional image previews
+- 🖱️ Drag & drop support
+- 🔒 Automatic Laravel CSRF detection
+- ⚡ Duplicate input name detection
 - 🎯 Framework agnostic
+- 🔄 Preload existing media
+- 🌐 Custom upload/update endpoint support
 
 ---
 
-## Installation
+# Installation
 
-Install via npm.
+Install using npm.
 
 ```bash
 npm install stormcelltech-fileuploader
 ```
 
-Then import it into your application.
+Import the package once in your application.
 
 ```javascript
 import "stormcelltech-fileuploader";
 ```
 
-The uploader automatically initializes every element with the `.uploader` class after the DOM has loaded.
+The package automatically initializes every element with the `.uploader` class when the DOM has loaded.
 
 ---
 
 # Basic Usage
-
-## HTML
-
-```html
-<div
-  id="logo-uploader"
-  class="uploader"
-  data-fileinputname="logo_id"
-  data-uploadtext="Select Logo"
-  data-uploadtype="single"
-  data-preview="true"
-></div>
-```
-
-For Laravel Blade:
 
 ```blade
 @vite(['resources/js/app.js'])
@@ -60,13 +49,13 @@ For Laravel Blade:
 </div>
 ```
 
-That's all that's required.
+No additional JavaScript is required.
 
 ---
 
 # Manual Initialization
 
-If you don't want automatic initialization, you can create an uploader manually.
+If you don't want automatic initialization, instantiate it manually.
 
 ```html
 <div id="profile-uploader"></div>
@@ -76,7 +65,7 @@ If you don't want automatic initialization, you can create an uploader manually.
 import "stormcelltech-fileuploader";
 
 document.addEventListener("DOMContentLoaded", () => {
-  const uploader = new FileUploader("profile-uploader");
+  new FileUploader("profile-uploader");
 });
 ```
 
@@ -86,19 +75,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
 The uploader is configured entirely through HTML data attributes.
 
-| Attribute            | Type                     | Required | Default       | Description                                                    |
-| -------------------- | ------------------------ | -------- | ------------- | -------------------------------------------------------------- |
-| `id`                 | String                   | ✔        | —             | Unique element ID.                                             |
-| `data-fileinputname` | String                   | ✔        | —             | Name of the hidden input that stores the selected media ID(s). |
-| `data-hasfile`       | Integer or JSON Array    | ❌       | `null`        | Existing media ID(s) used to preload uploaded files.           |
-| `data-uploadtype`    | String                   | ❌       | `single`      | `single` or `multiple`.                                        |
-| `data-uploadtext`    | String                   | ❌       | `Select File` | Upload button text.                                            |
-| `data-preview`       | Boolean (`true`/`false`) | ❌       | `true`        | Enable or disable file previews.                               |
-| `data-hidemediatab`  | Boolean (`true`/`false`) | ❌       | `false`       | Hide the media library tab and only allow uploads.             |
+| Attribute             | Type                   | Required | Default         | Description                                                      |
+| --------------------- | ---------------------- | -------- | --------------- | ---------------------------------------------------------------- |
+| `id`                  | String                 | ✅       | —               | Unique container ID.                                             |
+| `data-fileinputname`  | String                 | ✅       | —               | Hidden input name used when submitting the selected media ID(s). |
+| `data-uploadtype`     | `single` or `multiple` | No       | `single`        | Upload mode.                                                     |
+| `data-uploadtext`     | String                 | No       | `Select Files`  | Upload button text.                                              |
+| `data-preview`        | Boolean                | No       | `true`          | Enable preview rendering.                                        |
+| `data-previewid`      | String                 | No       | Auto-generated  | Custom preview container ID.                                     |
+| `data-hasfile`        | Integer or JSON Array  | No       | `null`          | Existing media ID(s) to preload.                                 |
+| `data-hidemediatab`   | Boolean                | No       | `false`         | Hide the media library tab.                                      |
+| `data-showbutton`     | Boolean                | No       | `1`             | Show or hide the upload button.                                  |
+| `data-buttontype`     | `input` or `button`    | No       | `input`         | Button style.                                                    |
+| `data-buttonstyle`    | String                 | No       | Package default | Custom CSS classes for the button.                               |
+| `data-customupload`   | Boolean                | No       | `false`         | Automatically send uploaded image ID to a custom endpoint.       |
+| `data-updateendpoint` | String                 | No       | `null`          | Endpoint used when `data-customupload="true"`.                   |
 
 ---
 
-## Example
+# Example
 
 ```html
 <div
@@ -108,7 +103,6 @@ The uploader is configured entirely through HTML data attributes.
   data-uploadtype="multiple"
   data-uploadtext="Upload Images"
   data-preview="true"
-  data-hidemediatab="false"
 ></div>
 ```
 
@@ -116,28 +110,121 @@ The uploader is configured entirely through HTML data attributes.
 
 # Preloading Existing Files
 
-To preload files, provide the database media ID using `data-hasfile`.
+The uploader accepts **Media IDs**, not file URLs.
 
-Single file:
+Single image:
 
 ```html
-<div class="uploader" data-fileinputname="logo_id" data-hasfile="12"></div>
+<div class="uploader" data-fileinputname="logo_id" data-hasfile="15"></div>
 ```
 
-Multiple files:
+Multiple images:
 
 ```html
 <div
   class="uploader"
   data-fileinputname="gallery"
   data-uploadtype="multiple"
-  data-hasfile="[12,15,18]"
+  data-hasfile="[12,18,25]"
 ></div>
 ```
 
 > **Important**
 >
-> `data-hasfile` must contain **Media database IDs**, **not file URLs or file paths**.
+> `data-hasfile` **must contain Media database IDs**.
+>
+> Do **not** pass:
+>
+> - File URLs
+> - Storage paths
+> - File names
+
+Incorrect:
+
+```html
+data-hasfile="/storage/logo.png"
+```
+
+Correct:
+
+```html
+data-hasfile="15"
+```
+
+---
+
+# Custom Upload Endpoint
+
+The uploader can automatically notify your application whenever a user uploads or selects a file.
+
+Enable it using:
+
+```html
+<div
+  id="avatar"
+  class="uploader"
+  data-fileinputname="avatar_id"
+  data-customupload="true"
+  data-updateendpoint="/profile/avatar"
+></div>
+```
+
+Whenever a file is selected, the uploader sends:
+
+```
+PATCH /profile/avatar
+```
+
+Request body:
+
+```json
+{
+  "imageId": 25
+}
+```
+
+Headers:
+
+```
+Content-Type: application/json
+Accept: application/json
+X-CSRF-TOKEN: {token}
+```
+
+Expected response:
+
+```json
+{
+  "status": 200,
+  "message": "Avatar updated successfully."
+}
+```
+
+If `status` is `200`, a success notification is displayed.
+
+---
+
+# Events
+
+The uploader dispatches a custom event whenever a file is selected.
+
+```javascript
+document
+  .getElementById("logo-uploader")
+  .addEventListener("file:selected", (event) => {
+    console.log(event.detail);
+  });
+```
+
+Example event payload:
+
+```javascript
+{
+    id: 15,
+    filename: "logo.png",
+    thumb: "https://example.com/storage/logo-thumb.png"
+}
+```
 
 ---
 
@@ -157,8 +244,8 @@ Expected response:
 {
   "data": {
     "id": 1,
-    "thumb": "https://example.com/storage/thumb.jpg",
-    "filename": "image.jpg"
+    "filename": "logo.png",
+    "thumb": "https://example.com/storage/logo-thumb.png"
   }
 }
 ```
@@ -171,17 +258,27 @@ Expected response:
 GET /media/{id}/get
 ```
 
-Returns the media information used for hydration.
+Returns a single media record.
 
 ---
 
-## List Media
+## Media Library
 
 ```
 GET /media/list?page=1&search=
 ```
 
 Returns paginated media results.
+
+Expected response:
+
+```json
+{
+  "data": {
+    "data": []
+  }
+}
+```
 
 ---
 
@@ -191,7 +288,7 @@ Returns paginated media results.
 DELETE /media/{id}/delete
 ```
 
-Deletes the selected media.
+Deletes a media record.
 
 ---
 
@@ -202,9 +299,8 @@ Deletes the selected media.
     id="featured-image"
     class="uploader"
     data-fileinputname="featured_image_id"
-    data-uploadtype="single"
-    data-preview="true"
-    data-uploadtext="Choose Featured Image">
+    data-uploadtext="Choose Featured Image"
+    data-preview="true">
 </div>
 ```
 
@@ -212,26 +308,24 @@ Deletes the selected media.
 import "stormcelltech-fileuploader";
 ```
 
-No additional JavaScript is required.
+That's it.
 
 ---
 
 # Browser Support
 
-Supports all modern browsers that implement:
+Supports all modern browsers with:
 
 - ES6 Modules
 - Fetch API
 - FormData
+- XMLHttpRequest
 - Custom Events
 
 ---
 
 # License
 
-This project is licensed under the **MIT License**.
-
-```
 MIT License
 
 Copyright (c) 2026 Storm Cell Tech
@@ -253,4 +347,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-```

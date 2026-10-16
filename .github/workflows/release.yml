@@ -32,4 +32,4 @@ jobs:
 
       # npm CLI automatically detects the OIDC environment and authenticates
       - name: Publish to npm
-        run: npm publish --provenance
+        run: npm stage publish

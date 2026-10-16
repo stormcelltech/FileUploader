@@ -216,41 +216,127 @@ class FileUploader {
     }
 
     /**
-     * Create upload button
-     */
-    createUploadButton() {
-        if (this.showButton !== '1') return;
+ * Create upload button using Tailwind classes only.
+ * Supports per-uploader custom button and label styles.
+ */
+createUploadButton() {
+    if (this.showButton !== '1') return;
 
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = this.getButtonClasses();
+    const btn = document.createElement('button');
+    btn.type = 'button';
 
-        const chooseFile = document.createElement('span');
-        chooseFile.className = this.buttonStyle ?? 'h-full py-3 px-4 bg-gray-100 text-nowrap dark:bg-gray-800';
-        chooseFile.textContent = this.container.dataset.uploadtext ?? 'Select Files';
+    // Default outer button style; data-buttonclass overrides/adds classes.
+    const defaultButtonClasses = [
+        'group',
+        'relative',
+        'flex',
+        'w-full',
+        'overflow-hidden',
+        'rounded-xl',
+        'border',
+        'border-gray-200',
+        'bg-white',
+        'text-sm',
+        'font-medium',
+        'text-gray-700',
+        'shadow-sm',
+        'transition-all',
+        'duration-200',
+        'hover:border-blue-400',
+        'hover:shadow-md',
+        'focus:outline-none',
+        'focus:ring-2',
+        'focus:ring-blue-500',
+        'focus:ring-offset-2',
+        'disabled:cursor-not-allowed',
+        'disabled:opacity-50',
+        'dark:border-gray-700',
+        'dark:bg-gray-900',
+        'dark:text-gray-200',
+        'dark:hover:border-blue-500',
+        'dark:focus:ring-offset-gray-900'
+    ];
 
-        btn.appendChild(chooseFile);
+    const customButtonClasses = this.container.dataset.buttonclass
+        ?.trim()
+        .split(/\s+/)
+        .filter(Boolean) || [];
 
-        if (this.buttonType === 'input') {
-            const inputbox = document.createElement('span');
-            inputbox.className = 'group grow flex overflow-hidden h-full py-3 px-4 items-center';
+    btn.className = [
+        ...defaultButtonClasses,
+        this.buttonType === 'button' ? 'flex-col' : 'flex-row',
+        ...customButtonClasses
+    ].join(' ');
 
-            const inputBoxInner = document.createElement('span');
-            inputBoxInner.className = 'group-has-[div]:hidden text-gray-600 dark:text-gray-400';
-            inputBoxInner.textContent = 'No file chosen';
+    // Upload label
+    const chooseFile = document.createElement('span');
 
-            inputbox.appendChild(inputBoxInner);
-            btn.appendChild(inputbox);
-        }
+    const defaultLabelClasses = [
+        'inline-flex',
+        'shrink-0',
+        'items-center',
+        'justify-center',
+        'gap-2',
+        'bg-blue-600',
+        'px-4',
+        'py-3',
+        'font-semibold',
+        'text-white',
+        'transition-colors',
+        'duration-200',
+        'group-hover:bg-blue-700',
+        'dark:bg-blue-700',
+        'dark:group-hover:bg-blue-600'
+    ];
 
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            this.openModal();
-        });
+    const customLabelClasses = this.container.dataset.buttonstyle
+        ?.trim()
+        .split(/\s+/)
+        .filter(Boolean);
 
-        this.container.appendChild(btn);
+    chooseFile.className = (
+        customLabelClasses?.length
+            ? customLabelClasses
+            : defaultLabelClasses
+    ).join(' ');
+
+    chooseFile.textContent =
+        this.container.dataset.uploadtext || 'Select Files';
+
+    btn.appendChild(chooseFile);
+
+    // Filename area for input-style buttons
+    if (this.buttonType === 'input') {
+        const inputbox = document.createElement('span');
+
+        inputbox.className = [
+            'flex',
+            'min-w-0',
+            'grow',
+            'items-center',
+            'px-4',
+            'py-3',
+            'text-left',
+            'text-gray-500',
+            'dark:text-gray-400'
+        ].join(' ');
+
+        const inputBoxInner = document.createElement('span');
+        inputBoxInner.className = 'truncate';
+        inputBoxInner.textContent = 'No file chosen';
+
+        inputbox.appendChild(inputBoxInner);
+        btn.appendChild(inputbox);
     }
+
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.openModal();
+    });
+
+    this.container.appendChild(btn);
+}
 
     /**
      * Get button CSS classes based on configuration

@@ -1,6 +1,6 @@
 {
   "name": "stormcelltech-fileuploader",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A robust, dependency-free vanilla JavaScript file upload component with state-to-view architecture and a dataset API.",
   "main": "src/FileUploader.js",
   "type": "module",

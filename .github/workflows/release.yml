@@ -1,40 +1,36 @@
-name: Publish FileUploader.js to npm and GitHub Releases
+name: Publish Package
 
 on:
-  push:
-    tags:
-      - "v*" # Triggers on version tags (e.g., v1.0.0)
+  release:
+    types: [published]
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+
+    # Crucial: Allow the workflow to request the OIDC JWT identity token
     permissions:
-      contents: write
+      contents: read
       id-token: write
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v7
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: "24"
-          registry-url: "https://registry.npmjs.org"
+          # CRITICAL: Do NOT set registry-url or always-auth here
 
-      - name: Install Dependencies
-        run: npm ci || echo "No dependencies to install"
+      - name: Ensure npm v11.5.1+
+        run: npm install -g npm@latest
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3
-        with:
-          name: Release ${{ github.ref_name }}
-          tag_name: ${{ github.ref }}
-          draft: false
-          prerelease: false
-          generate_release_notes: true
+      - name: Install dependencies and build
+        run: |
+          npm ci
+          npm run build
 
+      # npm CLI automatically detects the OIDC environment and authenticates
       - name: Publish to npm
         run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "v*"
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -33,4 +34,4 @@ jobs:
 
       # npm CLI automatically detects the OIDC environment and authenticates
       - name: Publish to npm
-        run: npm publish
+        run: npm publish --provenance
